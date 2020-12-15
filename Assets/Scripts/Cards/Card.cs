@@ -12,8 +12,7 @@ public class Card : ScriptableObject
     public string cardName;
     public string cardDescription;
     public int manaCost;
-    public int minRange;
-    public int maxRange;
+    public float maxRange;
     public int damageOrHeal;
     public int movePoint;
 
@@ -25,14 +24,13 @@ public class Card : ScriptableObject
     {
 
     }
-    public Card (int Id, Image image, string name, string description, int manaAlteration, int min, int max, int lifeAlteration, int moveAlteration)
+    public Card (int Id, Image image, string name, string description, int manaAlteration, int max, int lifeAlteration, int moveAlteration)
     {
         cardId = Id;
         cardImage = image;
         cardName = name;
         cardDescription = description;
         manaCost = manaAlteration;
-        minRange = min;
         maxRange = max;
         damageOrHeal = lifeAlteration;
         movePoint = moveAlteration;

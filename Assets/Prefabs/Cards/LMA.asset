@@ -17,8 +17,7 @@ MonoBehaviour:
   cardName: LMA
   cardDescription: "Inflige 10 points de d\xE9gats au corps \xE0 corps"
   manaCost: 1
-  minRange: 0
-  maxRange: 1
+  maxRange: 1.5
   damageOrHeal: -10
   movePoint: 0
   typeOfCard: 0

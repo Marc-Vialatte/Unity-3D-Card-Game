@@ -15,11 +15,20 @@ public class GameManager : Singleton<GameManager>
     public GameObject championOneCard;
     public GameObject championTwoCard;
 
-    // Start is called before the first frame update
+    public LineRenderer distanceChampionOneRenderer;
+    public LineRenderer distanceChampionTwoRenderer;
+
+    public GameObject range;
+
     void Start()
     {
         championOneCard.GetComponent<BoxCollider>().enabled = false;
         championTwoCard.GetComponent<BoxCollider>().enabled = false;
+
+        distanceChampionOneRenderer.gameObject.SetActive(false);
+        distanceChampionTwoRenderer.gameObject.SetActive(false);
+
+        range.SetActive(false);
 
         int x = 0;
         List<Card> deck = new List<Card>();
@@ -58,6 +67,50 @@ public class GameManager : Singleton<GameManager>
         NextPhase();
     }
 
+    private void Update()
+    {
+        float distancePlayerOne = Vector3.Distance(PlayerOne.championCard.transform.position, PlayerOne.champion.transform.position);
+        float distancePlayerTwo = Vector3.Distance(PlayerTwo.championCard.transform.position, PlayerTwo.champion.transform.position);
+
+        if (distancePlayerOne <= PlayerOne.move)
+        {
+            distanceChampionOneRenderer.SetPosition(0, PlayerOne.champion.transform.position);
+            distanceChampionOneRenderer.SetPosition(1, championOneCard.transform.position);
+            distanceChampionOneRenderer.startColor = Color.green;
+            distanceChampionOneRenderer.endColor = Color.green;
+        }
+        else if(distancePlayerOne > PlayerOne.move)
+        {
+            distanceChampionOneRenderer.startColor = Color.red;
+            distanceChampionOneRenderer.endColor = Color.red;
+        }
+
+        if (distancePlayerTwo <= PlayerTwo.move)
+        {
+            distanceChampionTwoRenderer.SetPosition(0, PlayerTwo.champion.transform.position);
+            distanceChampionTwoRenderer.SetPosition(1, championTwoCard.transform.position);
+            distanceChampionTwoRenderer.startColor = Color.green;
+            distanceChampionTwoRenderer.endColor = Color.green;
+        }
+        else if (distancePlayerTwo > PlayerTwo.move)
+        {
+            distanceChampionTwoRenderer.startColor = Color.red;
+            distanceChampionTwoRenderer.endColor = Color.red;
+        }
+
+        switch (turnManager.playerTurn)
+        {
+            case TurnManager.PlayerTurn.playerOne:
+                range.transform.position = new Vector3(championOneCard.transform.position.x, range.transform.position.y, championOneCard.transform.position.z);
+                break;
+            case TurnManager.PlayerTurn.playerTwo:
+                range.transform.position = new Vector3(championTwoCard.transform.position.x, range.transform.position.y, championTwoCard.transform.position.z);
+                break;
+            default:
+                break;
+        }
+    }
+
     public void NextPhase()
     {
         turnManager.NextPhase();
@@ -91,15 +144,17 @@ public class GameManager : Singleton<GameManager>
                 break;
             case TurnManager.TurnPhase.main:
                 viewManager.SetPhaseName("Main");
+
                 if (turnManager.playerTurn == TurnManager.PlayerTurn.playerOne)
                 {
                     championOneCard.GetComponent<BoxCollider>().enabled = true;
+                    distanceChampionOneRenderer.gameObject.SetActive(true);
                 }
                 else
                 {
                     championTwoCard.GetComponent<BoxCollider>().enabled = true;
+                    distanceChampionTwoRenderer.gameObject.SetActive(true);
                 }
-
                 break;
             case TurnManager.TurnPhase.movement:
                 viewManager.SetPhaseName("Movement");
@@ -116,6 +171,8 @@ public class GameManager : Singleton<GameManager>
 
                 championOneCard.GetComponent<BoxCollider>().enabled = false;
                 championTwoCard.GetComponent<BoxCollider>().enabled = false;
+                distanceChampionOneRenderer.gameObject.SetActive(false);
+                distanceChampionTwoRenderer.gameObject.SetActive(false);
                 break;
             default:
                 break;
@@ -125,10 +182,11 @@ public class GameManager : Singleton<GameManager>
     public void UseCard(string cardName, GameObject uiCard)
     {
         Card card = cardsManager.playableCards.Find(x => x.name == cardName);
+        float range = Vector3.Distance(PlayerOne.champion.transform.position, PlayerTwo.champion.transform.position);
 
         switch (turnManager.playerTurn)
         {
-            case TurnManager.PlayerTurn.playerOne when PlayerOne.mana >= card.manaCost:
+            case TurnManager.PlayerTurn.playerOne when PlayerOne.mana >= card.manaCost && range <= card.maxRange:
                 PlayerOne.mana -= card.manaCost;
                 viewManager.SetPlayerMana(PlayerOne.playerName, PlayerOne.mana);
                 CardEffect(PlayerOne, PlayerTwo, card);
@@ -136,7 +194,7 @@ public class GameManager : Singleton<GameManager>
                 viewManager.RemoveCardFromHand(card.cardImage);
                 Destroy(uiCard);
                 break;
-            case TurnManager.PlayerTurn.playerTwo when PlayerTwo.mana >= card.manaCost:
+            case TurnManager.PlayerTurn.playerTwo when PlayerTwo.mana >= card.manaCost && range <= card.maxRange:
                 PlayerTwo.mana -= card.manaCost;
                 viewManager.SetPlayerMana(PlayerTwo.playerName, PlayerTwo.mana);
                 CardEffect(PlayerTwo, PlayerOne, card);
@@ -174,25 +232,41 @@ public class GameManager : Singleton<GameManager>
         viewManager.AddCardInHand(card);
     }
 
-    public void MoveChampion()
+    public void ShowRange(bool isShowed)
+    {
+        range.SetActive(isShowed);
+    }
+
+    public void MoveChampion(Vector3 savedPosition)
     {
         Vector3 targetPosition;
         Quaternion targetRotation;
 
+        float distancePlayerOne = Vector3.Distance(PlayerOne.championCard.transform.position, PlayerOne.champion.transform.position);
+        float distancePlayerTwo = Vector3.Distance(PlayerTwo.championCard.transform.position, PlayerTwo.champion.transform.position);
+
         switch (turnManager.playerTurn)
         {
-            case TurnManager.PlayerTurn.playerOne:
+            case TurnManager.PlayerTurn.playerOne when distancePlayerOne <= PlayerOne.move:
                 targetPosition = new Vector3(PlayerOne.championCard.transform.position.x, 0, PlayerOne.championCard.transform.position.z); ;
                 //targetRotation = new Quaternion(0, PlayerOne.championCard.transform.rotation.y, 0, 1);
                 targetRotation = PlayerOne.championCard.transform.rotation;
 
                 StartCoroutine(MoveChampionToCardPosition(targetPosition, targetRotation, PlayerOne.champion.transform));
+                PlayerOne.MoveUseOrRegen(-distancePlayerOne);
                 break;
-            case TurnManager.PlayerTurn.playerTwo:
+            case TurnManager.PlayerTurn.playerTwo when distancePlayerTwo <= PlayerTwo.move:
                 targetPosition = new Vector3(PlayerTwo.championCard.transform.position.x, 0, PlayerTwo.championCard.transform.position.z); ;
                 targetRotation = new Quaternion(0, PlayerTwo.championCard.transform.rotation.y, 0, 1);
 
                 StartCoroutine(MoveChampionToCardPosition(targetPosition, targetRotation, PlayerTwo.champion.transform));
+                PlayerTwo.MoveUseOrRegen(-distancePlayerTwo);
+                break;
+            case TurnManager.PlayerTurn.playerOne when distancePlayerOne > PlayerOne.move:
+                championOneCard.transform.position = savedPosition;
+                break;
+            case TurnManager.PlayerTurn.playerTwo when distancePlayerTwo > PlayerTwo.move:
+                championOneCard.transform.position = savedPosition;
                 break;
             default:
                 break;
@@ -218,5 +292,4 @@ public class GameManager : Singleton<GameManager>
 
         yield return null;
     }
-
 }
