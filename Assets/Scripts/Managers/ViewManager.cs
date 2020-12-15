@@ -29,20 +29,8 @@ public class ViewManager : MonoBehaviour
     public GameObject _playerTwoHand;
     private List<Image> _playerTwoHandCards = new List<Image>();
 
-
-
-
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
+    public GameObject _WinPanel;
+    public TMP_Text _winText;
 
     public void SetValues(string playerOneName, string playerTwoName, int playerOneHealth, int playerTwoHealth, int playerOneMana, int playerTwoMana)
     {
@@ -144,6 +132,7 @@ public class ViewManager : MonoBehaviour
             card.gameObject.SetActive(true);
         }
     }
+
     public void RemoveCardFromHand( Image cardToRemove)
     {
         bool isRemoved = false;
@@ -181,5 +170,11 @@ public class ViewManager : MonoBehaviour
                 _playerTwoHandCards.RemoveAt(cardToRemoveIndex);
             }
         }
+    }
+
+    public void ShowWinnerPanel(string winPlayerName)
+    {
+        _WinPanel.SetActive(true);
+        _winText.text = winPlayerName + " win !";
     }
 }

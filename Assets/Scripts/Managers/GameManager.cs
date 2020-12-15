@@ -12,9 +12,15 @@ public class GameManager : Singleton<GameManager>
     public Player PlayerOne;
     public Player PlayerTwo;
 
+    public GameObject championOneCard;
+    public GameObject championTwoCard;
+
     // Start is called before the first frame update
     void Start()
     {
+        championOneCard.GetComponent<BoxCollider>().enabled = false;
+        championTwoCard.GetComponent<BoxCollider>().enabled = false;
+
         int x = 0;
         List<Card> deck = new List<Card>();
 
@@ -30,7 +36,7 @@ public class GameManager : Singleton<GameManager>
         PlayerOne.DeckShuffle();
         PlayerTwo.DeckShuffle();
         
-        viewManager.SetValues(PlayerOne.name, PlayerTwo.name, PlayerOne.health, PlayerTwo.health, PlayerOne.mana, PlayerTwo.mana);
+        viewManager.SetValues(PlayerOne.playerName, PlayerTwo.playerName, PlayerOne.health, PlayerTwo.health, PlayerOne.mana, PlayerTwo.mana);
 
         for (int i = 0; i < 6; i++)
         {
@@ -52,12 +58,6 @@ public class GameManager : Singleton<GameManager>
         NextPhase();
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
-
     public void NextPhase()
     {
         turnManager.NextPhase();
@@ -74,11 +74,11 @@ public class GameManager : Singleton<GameManager>
                     PlayerTwo.ManaRegen();
                 }
 
-                viewManager.SetPlayerHealth(PlayerOne.name, PlayerOne.health);
-                viewManager.SetPlayerHealth(PlayerTwo.name, PlayerTwo.health);
+                viewManager.SetPlayerHealth(PlayerOne.playerName, PlayerOne.health);
+                viewManager.SetPlayerHealth(PlayerTwo.playerName, PlayerTwo.health);
 
-                viewManager.SetPlayerMana(PlayerOne.name, PlayerOne.mana);
-                viewManager.SetPlayerMana(PlayerTwo.name, PlayerTwo.mana);
+                viewManager.SetPlayerMana(PlayerOne.playerName, PlayerOne.mana);
+                viewManager.SetPlayerMana(PlayerTwo.playerName, PlayerTwo.mana);
 
                 viewManager.SetRound();
                 viewManager.SetPlayerHand();
@@ -91,6 +91,15 @@ public class GameManager : Singleton<GameManager>
                 break;
             case TurnManager.TurnPhase.main:
                 viewManager.SetPhaseName("Main");
+                if (turnManager.playerTurn == TurnManager.PlayerTurn.playerOne)
+                {
+                    championOneCard.GetComponent<BoxCollider>().enabled = true;
+                }
+                else
+                {
+                    championTwoCard.GetComponent<BoxCollider>().enabled = true;
+                }
+
                 break;
             case TurnManager.TurnPhase.movement:
                 viewManager.SetPhaseName("Movement");
@@ -99,7 +108,14 @@ public class GameManager : Singleton<GameManager>
                 viewManager.SetPhaseName("Combat");
                 break;
             case TurnManager.TurnPhase.end:
+                if (PlayerOne.health <= 0)
+                    viewManager.ShowWinnerPanel(PlayerTwo.playerName);
+                else if (PlayerTwo.health <= 0)
+                    viewManager.ShowWinnerPanel(PlayerOne.playerName);
                 viewManager.SetPhaseName("End");
+
+                championOneCard.GetComponent<BoxCollider>().enabled = false;
+                championTwoCard.GetComponent<BoxCollider>().enabled = false;
                 break;
             default:
                 break;
@@ -114,7 +130,7 @@ public class GameManager : Singleton<GameManager>
         {
             case TurnManager.PlayerTurn.playerOne when PlayerOne.mana >= card.manaCost:
                 PlayerOne.mana -= card.manaCost;
-                viewManager.SetPlayerMana(PlayerOne.name, PlayerOne.mana);
+                viewManager.SetPlayerMana(PlayerOne.playerName, PlayerOne.mana);
                 CardEffect(PlayerOne, PlayerTwo, card);
                 PlayerOne.UseCard(card);
                 viewManager.RemoveCardFromHand(card.cardImage);
@@ -122,7 +138,7 @@ public class GameManager : Singleton<GameManager>
                 break;
             case TurnManager.PlayerTurn.playerTwo when PlayerTwo.mana >= card.manaCost:
                 PlayerTwo.mana -= card.manaCost;
-                viewManager.SetPlayerMana(PlayerTwo.name, PlayerTwo.mana);
+                viewManager.SetPlayerMana(PlayerTwo.playerName, PlayerTwo.mana);
                 CardEffect(PlayerTwo, PlayerOne, card);
                 PlayerTwo.UseCard(card);
                 viewManager.RemoveCardFromHand(card.cardImage);
@@ -139,11 +155,11 @@ public class GameManager : Singleton<GameManager>
         {
             case Card.TypesOfCard.Attaque:
                 playerInWait.health += card.damageOrHeal;
-                viewManager.SetPlayerHealth(playerInWait.name, playerInWait.health);
+                viewManager.SetPlayerHealth(playerInWait.playerName, playerInWait.health);
                 break;
             case Card.TypesOfCard.Soins:
                 playerInPlay.health += card.damageOrHeal;
-                viewManager.SetPlayerHealth(playerInPlay.name, playerInPlay.health);
+                viewManager.SetPlayerHealth(playerInPlay.playerName, playerInPlay.health);
                 break;
             case Card.TypesOfCard.Déplacement:
                 break;
@@ -157,4 +173,50 @@ public class GameManager : Singleton<GameManager>
         Image card = player.DrawCard();
         viewManager.AddCardInHand(card);
     }
+
+    public void MoveChampion()
+    {
+        Vector3 targetPosition;
+        Quaternion targetRotation;
+
+        switch (turnManager.playerTurn)
+        {
+            case TurnManager.PlayerTurn.playerOne:
+                targetPosition = new Vector3(PlayerOne.championCard.transform.position.x, 0, PlayerOne.championCard.transform.position.z); ;
+                //targetRotation = new Quaternion(0, PlayerOne.championCard.transform.rotation.y, 0, 1);
+                targetRotation = PlayerOne.championCard.transform.rotation;
+
+                StartCoroutine(MoveChampionToCardPosition(targetPosition, targetRotation, PlayerOne.champion.transform));
+                break;
+            case TurnManager.PlayerTurn.playerTwo:
+                targetPosition = new Vector3(PlayerTwo.championCard.transform.position.x, 0, PlayerTwo.championCard.transform.position.z); ;
+                targetRotation = new Quaternion(0, PlayerTwo.championCard.transform.rotation.y, 0, 1);
+
+                StartCoroutine(MoveChampionToCardPosition(targetPosition, targetRotation, PlayerTwo.champion.transform));
+                break;
+            default:
+                break;
+        }
+    }
+
+    private IEnumerator MoveChampionToCardPosition(Vector3 targetPosition, Quaternion targetRotation, Transform champion)
+    {
+        yield return new WaitForSeconds(3);
+
+        champion.rotation = Quaternion.LookRotation(targetPosition - champion.position);
+
+        yield return new WaitForSeconds(2);
+
+        float step = 1.0f * Time.deltaTime;
+        while (champion.position != targetPosition)
+        {
+            champion.position = Vector3.MoveTowards(champion.position, targetPosition, step);
+        }
+        yield return new WaitForSeconds(2);
+
+        champion.rotation = targetRotation;
+
+        yield return null;
+    }
+
 }

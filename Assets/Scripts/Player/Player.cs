@@ -5,8 +5,8 @@ using UnityEngine.UI;
 
 public class Player : MonoBehaviour
 {
-    protected int playerId;
-    protected string playerName;
+    public int playerId;
+    public string playerName;
     public List<Card> hand;
     public List<Card> deck;
     public List<Card> graveyard;
@@ -16,6 +16,10 @@ public class Player : MonoBehaviour
     private int manaRegen = 5;
     private int moveMax = 5;
 
+    public GameObject championCard;
+    public GameObject champion;
+
+    private bool isMoving = false;
 
     // Start is called before the first frame update
     void Start()
@@ -26,7 +30,6 @@ public class Player : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        
     }
 
     public void LifeLooseOrRegen(int lifeAlteration)

@@ -47,4 +47,9 @@ public class CardDrag : MonoBehaviour
 		//transform.rotation = Quaternion.LookRotation(cursorPosition - transform.position);
 		transform.LookAt(cursorPosition);
 	}
+
+    void OnMouseUp()
+    {
+		GameManager.Instance.MoveChampion();
+    }
 }
