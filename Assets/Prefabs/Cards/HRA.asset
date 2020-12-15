@@ -17,8 +17,7 @@ MonoBehaviour:
   cardName: HRA
   cardDescription: "Inflige 20 points de d\xE9gats \xE0 distance"
   manaCost: 5
-  minRange: 2
-  maxRange: 5
+  maxRange: 7.5
   damageOrHeal: -20
   movePoint: 0
   typeOfCard: 0

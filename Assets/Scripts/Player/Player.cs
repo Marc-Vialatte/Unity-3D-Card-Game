@@ -12,7 +12,7 @@ public class Player : MonoBehaviour
     public List<Card> graveyard;
     public int health = 100;
     public int mana = 0;
-    public int move = 3;
+    public float move = 3;
     private int manaRegen = 5;
     private int moveMax = 5;
 
@@ -21,23 +21,12 @@ public class Player : MonoBehaviour
 
     private bool isMoving = false;
 
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-    }
-
     public void LifeLooseOrRegen(int lifeAlteration)
     {
         health += lifeAlteration;
     }
 
-    public void MoveUseOrRegen(int moveAlteration)
+    public void MoveUseOrRegen(float moveAlteration)
     {
         move += moveAlteration;
     }

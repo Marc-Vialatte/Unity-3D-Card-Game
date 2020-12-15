@@ -17,8 +17,7 @@ MonoBehaviour:
   cardName: HMA
   cardDescription: "Inflige 20 points de d\xE9gats au corps \xE0 corps"
   manaCost: 3
-  minRange: 0
-  maxRange: 1
+  maxRange: 1.5
   damageOrHeal: -20
   movePoint: 0
   typeOfCard: 0

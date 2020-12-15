@@ -7,6 +7,8 @@ public class CardDrag : MonoBehaviour
 	private Vector3 screenPoint;
 	private Vector3 offset;
 
+	private Vector3 savedPosition;
+
 	private Ray ray;
 	private RaycastHit hitData;
 
@@ -25,6 +27,8 @@ public class CardDrag : MonoBehaviour
 	{
 		screenPoint = Camera.main.WorldToScreenPoint(gameObject.transform.position);
 		offset = gameObject.transform.position - Camera.main.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, screenPoint.z));
+
+		savedPosition = transform.position;
 	}
 
 	void OnMouseRightDown(GameObject gameObject)
@@ -50,6 +54,6 @@ public class CardDrag : MonoBehaviour
 
     void OnMouseUp()
     {
-		GameManager.Instance.MoveChampion();
+		GameManager.Instance.MoveChampion(savedPosition);
     }
 }

@@ -177,4 +177,9 @@ public class ViewManager : MonoBehaviour
         _WinPanel.SetActive(true);
         _winText.text = winPlayerName + " win !";
     }
+
+    public void ShowRange(bool isOn)
+    {
+        GameManager.Instance.ShowRange(isOn);
+    }
 }

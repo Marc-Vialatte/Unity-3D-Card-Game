@@ -17,8 +17,7 @@ MonoBehaviour:
   cardName: LRA
   cardDescription: "Inflige 10 points de d\xE9gats \xE0 distance"
   manaCost: 2
-  minRange: 2
-  maxRange: 5
+  maxRange: 7.5
   damageOrHeal: -10
   movePoint: 0
   typeOfCard: 0
