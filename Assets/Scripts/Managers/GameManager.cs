@@ -20,6 +20,10 @@ public class GameManager : Singleton<GameManager>
 
     public GameObject range;
 
+    private bool championOneIsMoving = false;
+    private bool championTwoIsMoving = false;
+    private bool championOnCards = false;
+
     void Start()
     {
         championOneCard.GetComponent<BoxCollider>().enabled = false;
@@ -69,43 +73,64 @@ public class GameManager : Singleton<GameManager>
 
     private void Update()
     {
-        float distancePlayerOne = Vector3.Distance(PlayerOne.championCard.transform.position, PlayerOne.champion.transform.position);
-        float distancePlayerTwo = Vector3.Distance(PlayerTwo.championCard.transform.position, PlayerTwo.champion.transform.position);
-
-        if (distancePlayerOne <= PlayerOne.move)
-        {
-            distanceChampionOneRenderer.SetPosition(0, PlayerOne.champion.transform.position);
-            distanceChampionOneRenderer.SetPosition(1, championOneCard.transform.position);
-            distanceChampionOneRenderer.startColor = Color.green;
-            distanceChampionOneRenderer.endColor = Color.green;
-        }
-        else if(distancePlayerOne > PlayerOne.move)
-        {
-            distanceChampionOneRenderer.startColor = Color.red;
-            distanceChampionOneRenderer.endColor = Color.red;
-        }
-
-        if (distancePlayerTwo <= PlayerTwo.move)
-        {
-            distanceChampionTwoRenderer.SetPosition(0, PlayerTwo.champion.transform.position);
-            distanceChampionTwoRenderer.SetPosition(1, championTwoCard.transform.position);
-            distanceChampionTwoRenderer.startColor = Color.green;
-            distanceChampionTwoRenderer.endColor = Color.green;
-        }
-        else if (distancePlayerTwo > PlayerTwo.move)
-        {
-            distanceChampionTwoRenderer.startColor = Color.red;
-            distanceChampionTwoRenderer.endColor = Color.red;
-        }
-
         switch (turnManager.playerTurn)
         {
             case TurnManager.PlayerTurn.playerOne:
+                float distancePlayerOne = Vector3.Distance(PlayerOne.championCard.transform.position, PlayerOne.champion.transform.position);
+                if (distancePlayerOne <= PlayerOne.move)
+                {
+                    distanceChampionOneRenderer.SetPosition(0, PlayerOne.champion.transform.position);
+                    distanceChampionOneRenderer.SetPosition(1, championOneCard.transform.position);
+                    distanceChampionOneRenderer.startColor = Color.green;
+                    distanceChampionOneRenderer.endColor = Color.green;
+                }
+                else if (distancePlayerOne > PlayerOne.move)
+                {
+                    distanceChampionOneRenderer.startColor = Color.red;
+                    distanceChampionOneRenderer.endColor = Color.red;
+                }
+
                 range.transform.position = new Vector3(championOneCard.transform.position.x, range.transform.position.y, championOneCard.transform.position.z);
+                if (championOneIsMoving)
+                    PlayerOne.champion.transform.position = Vector3.MoveTowards(PlayerOne.champion.transform.position, championOneCard.transform.position, 1f * Time.deltaTime);
+                else
+                    PlayerOne.champion.transform.rotation = Quaternion.Slerp(PlayerOne.champion.transform.rotation, PlayerTwo.champion.transform.rotation, 1f * Time.deltaTime);
+                if (Vector3.Distance(PlayerOne.champion.transform.position, championOneCard.transform.position) < 0.05f)
+                {
+                    championOnCards = true;
+                }
+                else
+                    championOnCards = false;
                 break;
+
             case TurnManager.PlayerTurn.playerTwo:
+                float distancePlayerTwo = Vector3.Distance(PlayerTwo.championCard.transform.position, PlayerTwo.champion.transform.position);
+                if (distancePlayerTwo <= PlayerTwo.move)
+                {
+                    distanceChampionTwoRenderer.SetPosition(0, PlayerTwo.champion.transform.position);
+                    distanceChampionTwoRenderer.SetPosition(1, championTwoCard.transform.position);
+                    distanceChampionTwoRenderer.startColor = Color.green;
+                    distanceChampionTwoRenderer.endColor = Color.green;
+                }
+                else if (distancePlayerTwo > PlayerTwo.move)
+                {
+                    distanceChampionTwoRenderer.startColor = Color.red;
+                    distanceChampionTwoRenderer.endColor = Color.red;
+                }
+
                 range.transform.position = new Vector3(championTwoCard.transform.position.x, range.transform.position.y, championTwoCard.transform.position.z);
+                if (championTwoIsMoving)
+                    PlayerTwo.champion.transform.position = Vector3.MoveTowards(PlayerTwo.champion.transform.position, championTwoCard.transform.position, 1f * Time.deltaTime);
+                if (Vector3.Distance(PlayerTwo.champion.transform.position, championTwoCard.transform.position) < 0.05f)
+                {
+                    championOnCards = true;
+                }
+                else
+                    championOnCards = false;
+                if (championOneIsMoving && championTwoIsMoving)
+                    PlayerTwo.champion.transform.rotation = Quaternion.RotateTowards(PlayerTwo.champion.transform.rotation, PlayerOne.champion.transform.rotation, 1f * Time.deltaTime);
                 break;
+
             default:
                 break;
         }
@@ -275,20 +300,32 @@ public class GameManager : Singleton<GameManager>
 
     private IEnumerator MoveChampionToCardPosition(Vector3 targetPosition, Quaternion targetRotation, Transform champion)
     {
-        yield return new WaitForSeconds(3);
+        yield return new WaitForSeconds(1.0f);
 
         champion.rotation = Quaternion.LookRotation(targetPosition - champion.position);
 
-        yield return new WaitForSeconds(2);
+        yield return new WaitForSeconds(0.5f);
 
-        float step = 1.0f * Time.deltaTime;
-        while (champion.position != targetPosition)
+        switch (turnManager.playerTurn)
         {
-            champion.position = Vector3.MoveTowards(champion.position, targetPosition, step);
+            case TurnManager.PlayerTurn.playerOne:
+                championOneIsMoving = true;
+                break;
+            case TurnManager.PlayerTurn.playerTwo:
+                championTwoIsMoving = true;
+                break;
+            default:
+                break;
         }
-        yield return new WaitForSeconds(2);
 
-        champion.rotation = targetRotation;
+        yield return new WaitUntil(() => championOnCards == true);
+
+        championOneIsMoving = false;
+        championTwoIsMoving = false;
+
+        yield return new WaitForSeconds(0.5f);
+
+        //champion.rotation = targetRotation;
 
         yield return null;
     }
