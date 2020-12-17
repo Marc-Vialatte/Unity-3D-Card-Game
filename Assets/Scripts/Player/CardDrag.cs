@@ -12,7 +12,7 @@ public class CardDrag : MonoBehaviour
 	private Ray ray;
 	private RaycastHit hitData;
 
-	private void Update()
+	/*private void Update()
     {
 		ray = Camera.main.ScreenPointToRay(Input.mousePosition);
 
@@ -21,7 +21,7 @@ public class CardDrag : MonoBehaviour
 			OnMouseRightDown(hitData.transform.gameObject);
 			OnMouseRightDrag();
 		}
-    }
+    }*/
 
     void OnMouseDown()
 	{
@@ -31,11 +31,11 @@ public class CardDrag : MonoBehaviour
 		savedPosition = transform.position;
 	}
 
-	void OnMouseRightDown(GameObject gameObject)
+	/*void OnMouseRightDown(GameObject gameObject)
     {
 		screenPoint = Camera.main.WorldToScreenPoint(gameObject.transform.position);
 		offset = gameObject.transform.position - Camera.main.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, screenPoint.z));
-	}
+	}*/
 
 	void OnMouseDrag()
 	{
@@ -44,13 +44,13 @@ public class CardDrag : MonoBehaviour
 		transform.position = cursorPosition;
 	}
 
-	void OnMouseRightDrag()
+	/*void OnMouseRightDrag()
     {
 		Vector3 cursorPoint = new Vector3(Input.mousePosition.x, Input.mousePosition.y, screenPoint.z);
 		Vector3 cursorPosition = Camera.main.ScreenToWorldPoint(cursorPoint) + offset;
 		//transform.rotation = Quaternion.LookRotation(cursorPosition - transform.position);
 		transform.LookAt(cursorPosition);
-	}
+	}*/
 
     void OnMouseUp()
     {
