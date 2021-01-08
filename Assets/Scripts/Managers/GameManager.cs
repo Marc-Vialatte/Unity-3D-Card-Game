@@ -39,7 +39,7 @@ public class GameManager : Singleton<GameManager>
 
         for (int i = 0; i < 40; i++)
         {
-            x = Random.Range(0, 3);
+            x = Random.Range(0, 5);
             deck.Add(cardsManager.playableCards[x]);
         }
 
@@ -146,10 +146,12 @@ public class GameManager : Singleton<GameManager>
                 if (turnManager.playerTurn == TurnManager.PlayerTurn.playerOne)
                 {
                     PlayerOne.ManaRegen();
+                    PlayerOne.MoveReset();
                 }
                 else
                 {
                     PlayerTwo.ManaRegen();
+                    PlayerTwo.MoveReset();
                 }
 
                 viewManager.SetPlayerHealth(PlayerOne.playerName, PlayerOne.health);

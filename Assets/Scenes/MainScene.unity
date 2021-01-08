@@ -3272,12 +3272,16 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 642080f545c084bf8b1b90500efbe30c, type: 2}
   - {fileID: 11400000, guid: 4e134c0182deb462a98218c59bd95e93, type: 2}
   - {fileID: 11400000, guid: 5afd69e79fac14f818f74e476a987870, type: 2}
+  - {fileID: 11400000, guid: 7de14b0ae519c7f49a7dab7428b0a08a, type: 2}
+  - {fileID: 11400000, guid: 3ee4e379534d243008edc68fa32535ff, type: 2}
   backCard: {fileID: 21300000, guid: 8447c5d34dd194f188dadd790c7db891, type: 3}
   cardsImages:
   - {fileID: 7326981534231412757, guid: 472efa0b3d2b549198bb25e7ac8e0a72, type: 3}
   - {fileID: 4774391220886747718, guid: d6754da6a165348e7bf63b0c05870ed9, type: 3}
   - {fileID: 3891557355393853686, guid: 132e5aa33d1b343db8ac68ce3c98b087, type: 3}
   - {fileID: 8102049541075635640, guid: 852bcb1b248514d35ac8706b025d1f1e, type: 3}
+  - {fileID: 3891557355393853686, guid: 1d79b0283212a4c409cd2313759fe271, type: 3}
+  - {fileID: 3891557355393853686, guid: 307c26d2893c34d7590f885c07bb4f1f, type: 3}
 --- !u!1 &1855023024
 GameObject:
   m_ObjectHideFlags: 0

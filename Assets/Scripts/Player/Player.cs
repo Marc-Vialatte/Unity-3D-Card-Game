@@ -12,7 +12,7 @@ public class Player : MonoBehaviour
     public List<Card> graveyard;
     public int health = 100;
     public int mana = 0;
-    public float move = 3;
+    public float move = 5;
     private int manaRegen = 5;
     private int moveMax = 5;
 
@@ -25,15 +25,19 @@ public class Player : MonoBehaviour
     {
         health += lifeAlteration;
     }
+    public void ManaUseOrRegen(int manaAlteration)
+    {
+        mana += manaAlteration;
+    }
 
     public void MoveUseOrRegen(float moveAlteration)
     {
         move += moveAlteration;
     }
 
-    public void ManaUseOrRegen(int manaAlteration)
+    public void MoveReset()
     {
-        mana += manaAlteration;
+        move = moveMax;
     }
 
     public void DeckShuffle()
