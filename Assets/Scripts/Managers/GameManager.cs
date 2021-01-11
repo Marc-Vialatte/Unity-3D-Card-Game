@@ -39,7 +39,7 @@ public class GameManager : Singleton<GameManager>
 
         for (int i = 0; i < 40; i++)
         {
-            x = Random.Range(0, 5);
+            x = Random.Range(0, cardsManager.playableCards.Count);
             deck.Add(cardsManager.playableCards[x]);
         }
 
