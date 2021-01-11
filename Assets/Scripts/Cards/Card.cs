@@ -16,7 +16,7 @@ public class Card : ScriptableObject
     public int damageOrHeal;
     public int movePoint;
 
-    public enum TypesOfCard { Attaque, Soins, Déplacement };
+    public enum TypesOfCard { AttaqueCaC, AttaqueDist, Soins, Déplacement };
     public TypesOfCard typeOfCard;
 
 

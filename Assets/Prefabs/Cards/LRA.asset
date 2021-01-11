@@ -20,4 +20,4 @@ MonoBehaviour:
   maxRange: 7.5
   damageOrHeal: -10
   movePoint: 0
-  typeOfCard: 0
+  typeOfCard: 1

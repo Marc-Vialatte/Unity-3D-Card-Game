@@ -8,6 +8,8 @@ public class GameManager : Singleton<GameManager>
     public TurnManager turnManager;
     public CardsManager cardsManager;
     public ViewManager viewManager;
+    public Animator animatorChampion1;
+    public Animator animatorChampion2;
 
     public Player PlayerOne;
     public Player PlayerTwo;
@@ -20,8 +22,6 @@ public class GameManager : Singleton<GameManager>
 
     public GameObject range;
 
-    private bool championOneIsMoving = false;
-    private bool championTwoIsMoving = false;
     private bool championOnCards = false;
 
     void Start()
@@ -91,7 +91,7 @@ public class GameManager : Singleton<GameManager>
                 }
 
                 range.transform.position = new Vector3(championOneCard.transform.position.x, range.transform.position.y, championOneCard.transform.position.z);
-                if (championOneIsMoving)
+                if (animatorChampion1.GetBool("IsMoving"))
                     PlayerOne.champion.transform.position = Vector3.MoveTowards(PlayerOne.champion.transform.position, championOneCard.transform.position, 1f * Time.deltaTime);
                 else
                     PlayerOne.champion.transform.rotation = Quaternion.Slerp(PlayerOne.champion.transform.rotation, PlayerTwo.champion.transform.rotation, 1f * Time.deltaTime);
@@ -119,7 +119,7 @@ public class GameManager : Singleton<GameManager>
                 }
 
                 range.transform.position = new Vector3(championTwoCard.transform.position.x, range.transform.position.y, championTwoCard.transform.position.z);
-                if (championTwoIsMoving)
+                if (animatorChampion2.GetBool("IsMoving"))
                     PlayerTwo.champion.transform.position = Vector3.MoveTowards(PlayerTwo.champion.transform.position, championTwoCard.transform.position, 1f * Time.deltaTime);
                 if (Vector3.Distance(PlayerTwo.champion.transform.position, championTwoCard.transform.position) < 0.05f)
                 {
@@ -127,7 +127,7 @@ public class GameManager : Singleton<GameManager>
                 }
                 else
                     championOnCards = false;
-                if (championOneIsMoving && championTwoIsMoving)
+                if (animatorChampion1.GetBool("IsMoving") && animatorChampion2.GetBool("IsMoving"))
                     PlayerTwo.champion.transform.rotation = Quaternion.RotateTowards(PlayerTwo.champion.transform.rotation, PlayerOne.champion.transform.rotation, 1f * Time.deltaTime);
                 break;
 
@@ -216,7 +216,7 @@ public class GameManager : Singleton<GameManager>
             case TurnManager.PlayerTurn.playerOne when PlayerOne.mana >= card.manaCost && range <= card.maxRange:
                 PlayerOne.mana -= card.manaCost;
                 viewManager.SetPlayerMana(PlayerOne.playerName, PlayerOne.mana);
-                CardEffect(PlayerOne, PlayerTwo, card);
+                StartCoroutine(CardEffect(PlayerOne, PlayerTwo, card));
                 PlayerOne.UseCard(card);
                 viewManager.RemoveCardFromHand(card.cardImage);
                 Destroy(uiCard);
@@ -224,7 +224,7 @@ public class GameManager : Singleton<GameManager>
             case TurnManager.PlayerTurn.playerTwo when PlayerTwo.mana >= card.manaCost && range <= card.maxRange:
                 PlayerTwo.mana -= card.manaCost;
                 viewManager.SetPlayerMana(PlayerTwo.playerName, PlayerTwo.mana);
-                CardEffect(PlayerTwo, PlayerOne, card);
+                StartCoroutine(CardEffect(PlayerTwo, PlayerOne, card));
                 PlayerTwo.UseCard(card);
                 viewManager.RemoveCardFromHand(card.cardImage);
                 Destroy(uiCard);
@@ -234,11 +234,32 @@ public class GameManager : Singleton<GameManager>
         }
     }
 
-    public void CardEffect(Player playerInPlay, Player playerInWait, Card card)
+    private IEnumerator CardEffect(Player playerInPlay, Player playerInWait, Card card)
     {
         switch (card.typeOfCard)
         {
-            case Card.TypesOfCard.Attaque:
+            case Card.TypesOfCard.AttaqueCaC:
+                print("ui");
+                if(playerInPlay == PlayerOne)
+                {
+                    animatorChampion1.SetBool("IsAttack", true);
+                }
+                else
+                {
+                    animatorChampion2.SetBool("IsAttack", true);
+                }
+                playerInWait.health += card.damageOrHeal;
+                viewManager.SetPlayerHealth(playerInWait.playerName, playerInWait.health);
+                break;
+            case Card.TypesOfCard.AttaqueDist:
+                if (playerInPlay == PlayerOne)
+                {
+                    animatorChampion1.SetBool("IsAttackRange", true);
+                }
+                else
+                {
+                    animatorChampion2.SetBool("IsAttackRange", true);
+                }
                 playerInWait.health += card.damageOrHeal;
                 viewManager.SetPlayerHealth(playerInWait.playerName, playerInWait.health);
                 break;
@@ -251,6 +272,11 @@ public class GameManager : Singleton<GameManager>
             default:
                 break;
         }
+        yield return new WaitForSeconds(1.0f);
+        animatorChampion1.SetBool("IsAttack", false);
+        animatorChampion2.SetBool("IsAttack", false);
+        animatorChampion1.SetBool("IsAttackRange", false);
+        animatorChampion2.SetBool("IsAttackR", false);
     }
 
     public void DrawCard(Player player)
@@ -311,10 +337,10 @@ public class GameManager : Singleton<GameManager>
         switch (turnManager.playerTurn)
         {
             case TurnManager.PlayerTurn.playerOne:
-                championOneIsMoving = true;
+                animatorChampion1.SetBool("IsMoving", true);
                 break;
             case TurnManager.PlayerTurn.playerTwo:
-                championTwoIsMoving = true;
+                animatorChampion2.SetBool("IsMoving", true);
                 break;
             default:
                 break;
@@ -322,8 +348,8 @@ public class GameManager : Singleton<GameManager>
 
         yield return new WaitUntil(() => championOnCards == true);
 
-        championOneIsMoving = false;
-        championTwoIsMoving = false;
+        animatorChampion1.SetBool("IsMoving", false);
+        animatorChampion2.SetBool("IsMoving", false);
 
         yield return new WaitForSeconds(0.5f);
 
