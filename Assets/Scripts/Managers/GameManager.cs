@@ -91,16 +91,21 @@ public class GameManager : Singleton<GameManager>
                 }
 
                 range.transform.position = new Vector3(championOneCard.transform.position.x, range.transform.position.y, championOneCard.transform.position.z);
+
                 if (animatorChampion1.GetBool("IsMoving"))
                     PlayerOne.champion.transform.position = Vector3.MoveTowards(PlayerOne.champion.transform.position, championOneCard.transform.position, 1f * Time.deltaTime);
-                else
-                    PlayerOne.champion.transform.rotation = Quaternion.Slerp(PlayerOne.champion.transform.rotation, PlayerTwo.champion.transform.rotation, 1f * Time.deltaTime);
+
                 if (Vector3.Distance(PlayerOne.champion.transform.position, championOneCard.transform.position) < 0.05f)
                 {
                     championOnCards = true;
                 }
                 else
                     championOnCards = false;
+                
+                /*if (animatorChampion1.GetBool("IsMoving") == false && animatorChampion2.GetBool("IsMoving") == false)
+                {
+                    PlayerOne.champion.transform.rotation = Quaternion.Slerp(PlayerOne.champion.transform.rotation, PlayerTwo.champion.transform.rotation, 1f * Time.deltaTime);
+                }*/
                 break;
 
             case TurnManager.PlayerTurn.playerTwo:
@@ -119,16 +124,19 @@ public class GameManager : Singleton<GameManager>
                 }
 
                 range.transform.position = new Vector3(championTwoCard.transform.position.x, range.transform.position.y, championTwoCard.transform.position.z);
+
                 if (animatorChampion2.GetBool("IsMoving"))
                     PlayerTwo.champion.transform.position = Vector3.MoveTowards(PlayerTwo.champion.transform.position, championTwoCard.transform.position, 1f * Time.deltaTime);
+
                 if (Vector3.Distance(PlayerTwo.champion.transform.position, championTwoCard.transform.position) < 0.05f)
                 {
                     championOnCards = true;
                 }
                 else
                     championOnCards = false;
-                if (animatorChampion1.GetBool("IsMoving") && animatorChampion2.GetBool("IsMoving"))
-                    PlayerTwo.champion.transform.rotation = Quaternion.RotateTowards(PlayerTwo.champion.transform.rotation, PlayerOne.champion.transform.rotation, 1f * Time.deltaTime);
+
+                /*if (animatorChampion1.GetBool("IsMoving") == false && animatorChampion2.GetBool("IsMoving") == false)
+                    PlayerTwo.champion.transform.rotation = Quaternion.RotateTowards(PlayerTwo.champion.transform.rotation, PlayerOne.champion.transform.rotation, 1f * Time.deltaTime);*/
                 break;
 
             default:
@@ -292,8 +300,8 @@ public class GameManager : Singleton<GameManager>
 
     public void MoveChampion(Vector3 savedPosition)
     {
-        Vector3 targetPosition;
-        Quaternion targetRotation;
+        Vector3 targetCardPosition;
+        Vector3 targetChampionPosition;
 
         float distancePlayerOne = Vector3.Distance(PlayerOne.championCard.transform.position, PlayerOne.champion.transform.position);
         float distancePlayerTwo = Vector3.Distance(PlayerTwo.championCard.transform.position, PlayerTwo.champion.transform.position);
@@ -301,18 +309,17 @@ public class GameManager : Singleton<GameManager>
         switch (turnManager.playerTurn)
         {
             case TurnManager.PlayerTurn.playerOne when distancePlayerOne <= PlayerOne.move:
-                targetPosition = new Vector3(PlayerOne.championCard.transform.position.x, 0, PlayerOne.championCard.transform.position.z); ;
-                //targetRotation = new Quaternion(0, PlayerOne.championCard.transform.rotation.y, 0, 1);
-                targetRotation = PlayerOne.championCard.transform.rotation;
+                targetCardPosition = new Vector3(PlayerOne.championCard.transform.position.x, 0, PlayerOne.championCard.transform.position.z);
+                targetChampionPosition = new Vector3(PlayerTwo.champion.transform.position.x, 0, PlayerTwo.champion.transform.position.z);
 
-                StartCoroutine(MoveChampionToCardPosition(targetPosition, targetRotation, PlayerOne.champion.transform));
+                StartCoroutine(MoveChampionToCardPosition(targetCardPosition, targetChampionPosition, PlayerOne.champion.transform));
                 PlayerOne.MoveUseOrRegen(-distancePlayerOne);
                 break;
             case TurnManager.PlayerTurn.playerTwo when distancePlayerTwo <= PlayerTwo.move:
-                targetPosition = new Vector3(PlayerTwo.championCard.transform.position.x, 0, PlayerTwo.championCard.transform.position.z); ;
-                targetRotation = new Quaternion(0, PlayerTwo.championCard.transform.rotation.y, 0, 1);
+                targetCardPosition = new Vector3(PlayerTwo.championCard.transform.position.x, 0, PlayerTwo.championCard.transform.position.z);
+                targetChampionPosition = new Vector3(PlayerOne.champion.transform.position.x, 0, PlayerOne.champion.transform.position.z);
 
-                StartCoroutine(MoveChampionToCardPosition(targetPosition, targetRotation, PlayerTwo.champion.transform));
+                StartCoroutine(MoveChampionToCardPosition(targetCardPosition, targetChampionPosition, PlayerTwo.champion.transform));
                 PlayerTwo.MoveUseOrRegen(-distancePlayerTwo);
                 break;
             case TurnManager.PlayerTurn.playerOne when distancePlayerOne > PlayerOne.move:
@@ -326,11 +333,11 @@ public class GameManager : Singleton<GameManager>
         }
     }
 
-    private IEnumerator MoveChampionToCardPosition(Vector3 targetPosition, Quaternion targetRotation, Transform champion)
+    private IEnumerator MoveChampionToCardPosition(Vector3 targetCardPosition, Vector3 targetChampionPosition, Transform champion)
     {
         yield return new WaitForSeconds(1.0f);
 
-        champion.rotation = Quaternion.LookRotation(targetPosition - champion.position);
+        champion.rotation = Quaternion.LookRotation(targetCardPosition - champion.position);
 
         yield return new WaitForSeconds(0.5f);
 
@@ -353,7 +360,8 @@ public class GameManager : Singleton<GameManager>
 
         yield return new WaitForSeconds(0.5f);
 
-        //champion.rotation = targetRotation;
+        champion.rotation = Quaternion.LookRotation(targetChampionPosition - champion.position);
+
 
         yield return null;
     }
