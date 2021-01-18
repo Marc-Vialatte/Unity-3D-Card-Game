@@ -101,11 +101,6 @@ public class GameManager : Singleton<GameManager>
                 }
                 else
                     championOnCards = false;
-                
-                /*if (animatorChampion1.GetBool("IsMoving") == false && animatorChampion2.GetBool("IsMoving") == false)
-                {
-                    PlayerOne.champion.transform.rotation = Quaternion.Slerp(PlayerOne.champion.transform.rotation, PlayerTwo.champion.transform.rotation, 1f * Time.deltaTime);
-                }*/
                 break;
 
             case TurnManager.PlayerTurn.playerTwo:
@@ -134,12 +129,6 @@ public class GameManager : Singleton<GameManager>
                 }
                 else
                     championOnCards = false;
-
-                /*if (animatorChampion1.GetBool("IsMoving") == false && animatorChampion2.GetBool("IsMoving") == false)
-                    PlayerTwo.champion.transform.rotation = Quaternion.RotateTowards(PlayerTwo.champion.transform.rotation, PlayerOne.champion.transform.rotation, 1f * Time.deltaTime);*/
-                break;
-
-            default:
                 break;
         }
     }
@@ -209,8 +198,6 @@ public class GameManager : Singleton<GameManager>
                 distanceChampionOneRenderer.gameObject.SetActive(false);
                 distanceChampionTwoRenderer.gameObject.SetActive(false);
                 break;
-            default:
-                break;
         }
     }
 
@@ -237,8 +224,6 @@ public class GameManager : Singleton<GameManager>
                 viewManager.RemoveCardFromHand(card.cardImage);
                 Destroy(uiCard);
                 break;
-            default:
-                break;
         }
     }
 
@@ -256,7 +241,7 @@ public class GameManager : Singleton<GameManager>
                 {
                     animatorChampion2.SetBool("IsAttack", true);
                 }
-                playerInWait.health += card.damageOrHeal;
+                playerInWait.LifeLooseOrRegen(card.damageOrHeal);
                 viewManager.SetPlayerHealth(playerInWait.playerName, playerInWait.health);
                 break;
             case Card.TypesOfCard.AttaqueDist:
@@ -268,16 +253,15 @@ public class GameManager : Singleton<GameManager>
                 {
                     animatorChampion2.SetBool("IsAttackRange", true);
                 }
-                playerInWait.health += card.damageOrHeal;
+                playerInWait.LifeLooseOrRegen(card.damageOrHeal);
                 viewManager.SetPlayerHealth(playerInWait.playerName, playerInWait.health);
                 break;
             case Card.TypesOfCard.Soins:
-                playerInPlay.health += card.damageOrHeal;
+                playerInPlay.LifeLooseOrRegen(card.damageOrHeal);
                 viewManager.SetPlayerHealth(playerInPlay.playerName, playerInPlay.health);
                 break;
             case Card.TypesOfCard.Déplacement:
-                break;
-            default:
+                playerInPlay.MoveUseOrRegen(card.movePoint);
                 break;
         }
         yield return new WaitForSeconds(1.0f);
@@ -361,8 +345,7 @@ public class GameManager : Singleton<GameManager>
         yield return new WaitForSeconds(0.5f);
 
         champion.rotation = Quaternion.LookRotation(targetChampionPosition - champion.position);
-
-
+        
         yield return null;
     }
 }

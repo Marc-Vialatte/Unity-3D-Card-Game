@@ -16,8 +16,8 @@ MonoBehaviour:
   cardImage: {fileID: 3891557355393853686, guid: 307c26d2893c34d7590f885c07bb4f1f, type: 3}
   cardName: Heal
   cardDescription: Ajoute 5 points de mouvement
-  manaCost: 5
+  manaCost: 3
   maxRange: 25
   damageOrHeal: 0
-  movePoint: 0
+  movePoint: 5
   typeOfCard: 3
